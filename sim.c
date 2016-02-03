@@ -60,10 +60,12 @@ int main()
   //generate departure events
   EventList* departures = generate_departure_events(arrivals, link_rate, generator, packet_length_distribution);
   //generate observer events
+  generator.seed(random_device{}());
   EventList* observers = generate_event_list(lambda, T, Observer, generator, distribution);
   arrivals->put(departures);
   arrivals->put(observers);
-  
+  cout << *arrivals << endl<<endl<<endl;
+  arrivals->sort_by_time();
   cout << *arrivals << endl<<endl;
   return 0;
 }

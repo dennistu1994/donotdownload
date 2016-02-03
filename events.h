@@ -1,3 +1,4 @@
+using namespace std;
 enum EventType {Arrival, Departure, Observer};
 class Event{
   public:
@@ -8,6 +9,12 @@ class Event{
       this->time = time;
       this->event_type = event_type;
     };
+    
+    bool operator<(const Event& other) const {
+      return (this->time < other.time);
+    };
+    
+    friend std::ostream& operator<<(std::ostream & Str, const Event& event);
 };
 
 class EventNode{
@@ -18,6 +25,15 @@ class EventNode{
     
     EventNode(Event& event){
       this->event = &event;
+    };
+    
+    //move towards the head of the list
+    void move_forward(){
+      if(this->prev != NULL){
+        Event* temp = this->event;
+        this->event = this->prev->event;
+        this->prev->event = temp;
+      }
     };
 };
 
@@ -51,6 +67,26 @@ class EventList{
         this->tail->next = event_list->head;
         event_list->head->prev = this->tail;
         this->tail = event_list->tail;
+      }
+    };
+    
+    void sort_by_time(){
+      if(this->size < 2){
+        return;
+      } else {
+        EventNode* temp = this->head->next;
+        EventNode* next = temp->next;
+        while(true){
+          while(temp->prev!=NULL && *(temp->event)<*(temp->prev->event)){
+            temp->move_forward();
+            temp = temp->prev;
+          }
+          temp = next;
+          if(temp == NULL){
+            break;
+          }
+          next = temp->next;
+        }
       }
     };
 };
