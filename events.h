@@ -56,6 +56,15 @@ class EventList{
       size++;
     };
     
+    void put_and_sort(Event* event){
+      this->put(event);
+      EventNode* temp = this->tail;
+      while(temp->prev!=NULL && *(temp->event)<*(temp->prev->event)){
+        temp->move_forward();
+        temp = temp->prev;
+      }
+    };
+    
     void put(EventList* event_list){
       if(event_list == NULL || event_list->size < 1){
         return;

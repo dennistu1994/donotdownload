@@ -2,6 +2,7 @@
 #include <math.h>
 #include <random>
 #include "events.h"
+#include "des.h"
 #include <algorithm>
 
 using namespace std;
@@ -47,9 +48,12 @@ EventList* generate_departure_events(EventList* arrivals, int link_rate, default
 
 int main()
 {
-  double lambda = 10l;
-  int average_packet_length = 5000;
+  double phi = 0.25l;
+  int average_packet_length = 12000;
   int link_rate = 1000000;
+  double lambda = phi*link_rate/(double)average_packet_length;
+  
+  int queue_size = 100000;
   default_random_engine generator(random_device{}());
   exponential_distribution<double> distribution(lambda);
   exponential_distribution<double> packet_length_distribution(1l/(double)average_packet_length);
@@ -58,15 +62,16 @@ int main()
   //generate arrival events
   EventList* arrivals = generate_event_list(lambda, T, Arrival, generator, distribution);
   //generate departure events
-  EventList* departures = generate_departure_events(arrivals, link_rate, generator, packet_length_distribution);
+  //EventList* departures = generate_departure_events(arrivals, link_rate, generator, packet_length_distribution);
   //generate observer events
   generator.seed(random_device{}());
   EventList* observers = generate_event_list(lambda, T, Observer, generator, distribution);
-  arrivals->put(departures);
+  //arrivals->put(departures);
   arrivals->put(observers);
-  cout << *arrivals << endl<<endl<<endl;
   arrivals->sort_by_time();
-  cout << *arrivals << endl<<endl;
+  DES des;
+  generator.seed(random_device{}());
+  des.simulate_finite_queue(arrivals, link_rate, generator, packet_length_distribution, queue_size);
   return 0;
 }
 
