@@ -1,4 +1,3 @@
-#include <limits>
 using namespace std;
 enum EventType {Arrival, Departure, Observer};
 class Event{
@@ -123,6 +122,16 @@ class EventList{
       } else {
         return numeric_limits<double>::max();
       }
+    };
+
+    EventList* clone(){
+      EventList* result = new EventList();
+      EventNode* temp = this->head;
+      while (temp != NULL){
+        result->put(temp->event);
+        temp = temp->next;
+      }
+      return result;
     };
 };
 

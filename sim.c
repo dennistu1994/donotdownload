@@ -4,6 +4,7 @@
 #include "events.h"
 #include "des.h"
 #include <algorithm>
+#include <limits>
 
 using namespace std;
 
@@ -48,31 +49,41 @@ EventList* generate_departure_events(EventList* arrivals, int link_rate, default
 
 int main()
 {
-  double rho = 0.25l;
+  double rho;
+  cout << "please enter rho: "<<endl;
+  cin >> rho;
   int average_packet_length = 12000;
   int link_rate = 1000000;
   double lambda = rho*link_rate/(double)average_packet_length;
-
-  int queue_size = 100000;
+  double T = 10000;
   default_random_engine generator(random_device{}()+rand());
   exponential_distribution<double> distribution(lambda);
   exponential_distribution<double> packet_length_distribution(1l/(double)average_packet_length);
   test_exp_dist(generator, distribution, lambda, 1000000);
-  double T = 100 ;
   //generate arrival events
-  EventList* arrivals = generate_event_list(lambda, T, Arrival, generator, distribution);
+  EventList* arrivals1 = generate_event_list(lambda, T, Arrival, generator, distribution);
   cout << "finished generating arrivals" << endl;
   cout.flush();
   //generate departure events
   //EventList* departures = generate_departure_events(arrivals, link_rate, generator, packet_length_distribution);
   //generate observer events
   generator.seed(random_device{}()+rand());
-  EventList* observers = generate_event_list(lambda * 2, T, Observer, generator, distribution);
+  EventList* observers1 = generate_event_list(lambda * 2, T, Observer, generator, distribution);
+  EventList* arrivals2 = arrivals1->clone();
+  EventList* observers2 = observers1->clone();
+  EventList* arrivals3 = arrivals1->clone();
+  EventList* observers3 = observers1->clone();
   cout << "finished generating observers" << endl;
   cout.flush();
-  DES des;
-  generator.seed(random_device{}());
-  SimResult* result = des.simulate_infinite_queue(arrivals, observers, link_rate, generator, packet_length_distribution);
-  cout<<(*result)<<endl;
+  DES des1, des2, des3;
+  generator.seed(random_device{}()+rand());
+  SimResult* result5 = des1.simulate_finite_queue(arrivals1, observers1, link_rate, generator, packet_length_distribution, T/10, 5);
+  cout<<(*result5)<<endl;
+  generator.seed(random_device{}()+rand());
+  SimResult* result10 = des2.simulate_finite_queue(arrivals2, observers2, link_rate, generator, packet_length_distribution, T/10, 10);
+  cout<<(*result10)<<endl;
+  generator.seed(random_device{}()+rand());
+  SimResult* result40 = des3.simulate_finite_queue(arrivals3, observers3, link_rate, generator, packet_length_distribution, T/10, 40);
+  cout<<(*result40)<<endl;
   return 0;
 }
