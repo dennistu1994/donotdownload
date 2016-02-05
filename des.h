@@ -3,13 +3,13 @@ using namespace std;
 class SimResult{
   public:
     double avg_pckts_in_sys;
-    
+
     SimResult(double avg_pckts_in_sys){
       this->avg_pckts_in_sys = avg_pckts_in_sys;
     };
 };
 
-std::ostream & operator<<(std::ostream & Str, const SimResult& result) { 
+std::ostream & operator<<(std::ostream & Str, const SimResult& result) {
   Str<<"average packets in the system: "<<result.avg_pckts_in_sys<<endl;
   return Str;
 }
@@ -23,7 +23,7 @@ class DES{
     int idle_count = 0;
     int drops = 0;
     int gen = 0;
-    
+
     void simulate_finite_queue(EventList* events, int link_rate, default_random_engine generator, exponential_distribution<double> packet_length_distribution, int queue_size){
       //finite queue
       double start, next_available = 0;
@@ -39,7 +39,7 @@ class DES{
             } else {
               this->Na += 1;
               this->Nsys += 1;
-              //schedule departure 
+              //schedule departure
               start = max(temp->event->time, next_available);
               L = round(packet_length_distribution(generator));
               //cout << " packet length is "<<L<<" bits";
@@ -62,7 +62,7 @@ class DES{
         temp = temp->next;
       }
     };
-    
+
     SimResult* simulate_infinite_queue(EventList* events, int link_rate, default_random_engine generator, exponential_distribution<double> packet_length_distribution){
               cout << "hi" << endl;
           cout.flush();
@@ -78,15 +78,15 @@ class DES{
           cout.flush();
           mark += 10;
         }
-        //cout<<*(temp->event);
+        cout<<*(temp->event);
         switch(temp->event->event_type){
           case Arrival:
             this->Na += 1;
-            this->Nsys += 1; 
-            //schedule departure 
+            this->Nsys += 1;
+            //schedule departure
             start = max(temp->event->time, next_available);
             L = round(packet_length_distribution(generator));
-            //cout << " packet length is "<<L<<" bits";
+            cout << " packet length is "<<L<<" bits";
             next_available = start + L/(double)link_rate;
             events->put_and_sort(new Event(next_available, Departure));
             break;
@@ -102,7 +102,7 @@ class DES{
             }
             break;
         }
-        //cout<<endl;
+        cout<<endl;
         temp = temp->next;
       }
       return new SimResult(((double)pckts_in_sys_sum)/No);
