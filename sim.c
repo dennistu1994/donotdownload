@@ -48,30 +48,31 @@ EventList* generate_departure_events(EventList* arrivals, int link_rate, default
 
 int main()
 {
-  double phi = 0.25l;
+  double rho = 0.25l;
   int average_packet_length = 12000;
   int link_rate = 1000000;
-  double lambda = phi*link_rate/(double)average_packet_length;
+  double lambda = rho*link_rate/(double)average_packet_length;
   
   int queue_size = 100000;
   default_random_engine generator(random_device{}());
   exponential_distribution<double> distribution(lambda);
   exponential_distribution<double> packet_length_distribution(1l/(double)average_packet_length);
   test_exp_dist(generator, distribution, lambda, 1000000);
-  double T = 3;
+  double T = 1000;
   //generate arrival events
   EventList* arrivals = generate_event_list(lambda, T, Arrival, generator, distribution);
   //generate departure events
   //EventList* departures = generate_departure_events(arrivals, link_rate, generator, packet_length_distribution);
   //generate observer events
   generator.seed(random_device{}());
-  EventList* observers = generate_event_list(lambda, T, Observer, generator, distribution);
+  EventList* observers = generate_event_list(lambda * 2, T, Observer, generator, distribution);
   //arrivals->put(departures);
   arrivals->put(observers);
   arrivals->sort_by_time();
   DES des;
   generator.seed(random_device{}());
-  des.simulate_finite_queue(arrivals, link_rate, generator, packet_length_distribution, queue_size);
+  SimResult* result = des.simulate_infinite_queue(arrivals, link_rate, generator, packet_length_distribution);
+  cout<<(*result)<<endl;
   return 0;
 }
 
