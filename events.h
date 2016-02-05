@@ -1,19 +1,20 @@
+#include <limits>
 using namespace std;
 enum EventType {Arrival, Departure, Observer};
 class Event{
   public:
     double time;
     EventType event_type;
-    
+
     Event(double time, EventType event_type){
       this->time = time;
       this->event_type = event_type;
     };
-    
+
     bool operator<(const Event& other) const {
       return (this->time < other.time);
     };
-    
+
     friend std::ostream& operator<<(std::ostream & Str, const Event& event);
 };
 
@@ -22,11 +23,11 @@ class EventNode{
     Event* event;
     EventNode* prev = NULL;
     EventNode* next = NULL;
-    
+
     EventNode(Event& event){
       this->event = &event;
     };
-    
+
     //move towards the head of the list
     void move_forward(){
       if(this->prev != NULL){
@@ -38,11 +39,11 @@ class EventNode{
 };
 
 class EventList{
-  public: 
+  public:
     EventNode* head = NULL;
     EventNode* tail = NULL;
     int size = 0;
-    
+
     void put(Event* event){
       EventNode* node = new EventNode(*event);
       if(this->size == 0){
@@ -53,9 +54,9 @@ class EventList{
         node->prev = this->tail;
         this->tail = node;
       }
-      size++;
+      this->size++;
     };
-    
+
     void put_and_sort(Event* event){
       this->put(event);
       EventNode* temp = this->tail;
@@ -64,7 +65,7 @@ class EventList{
         temp = temp->prev;
       }
     };
-    
+
     void put(EventList* event_list){
       if(event_list == NULL || event_list->size < 1){
         return;
@@ -77,8 +78,9 @@ class EventList{
         event_list->head->prev = this->tail;
         this->tail = event_list->tail;
       }
+      this->size += event_list->size;
     };
-    
+
     void sort_by_time(){
       if(this->size < 2){
         return;
@@ -98,9 +100,33 @@ class EventList{
         }
       }
     };
+
+    EventNode* pop_head(){
+      if(this->size < 1){
+        return NULL;
+      }
+      EventNode* result = this->head;
+      this->head = result->next;
+      result->next = NULL;
+      if(this->head != NULL){
+        this->head->prev = NULL;
+      } else {
+        this->tail = NULL;
+      }
+      this->size--;
+      return result;
+    };
+
+    double get_head_time(){
+      if(this->size > 0){
+        return this->head->event->time;
+      } else {
+        return numeric_limits<double>::max();
+      }
+    };
 };
 
-std::ostream & operator<<(std::ostream & Str, const Event& event) { 
+std::ostream & operator<<(std::ostream & Str, const Event& event) {
   switch (event.event_type){
     case Arrival:
       Str << 'A';
@@ -117,14 +143,15 @@ std::ostream & operator<<(std::ostream & Str, const Event& event) {
   Str<<'('<<event.time<<')';
 }
 
-std::ostream & operator<<(std::ostream & Str, const EventList& list) { 
+std::ostream & operator<<(std::ostream & Str, const EventList& list) {
   EventNode* temp = list.head;
   while (temp != NULL){
     Str << *(temp->event);
     temp = temp->next;
     if(temp!=NULL){
       Str << ", ";
-    }   
+    }
   }
+  Str << '[' << list.size << ']';
   return Str;
 }
