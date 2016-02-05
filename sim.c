@@ -58,7 +58,7 @@ int main()
   exponential_distribution<double> distribution(lambda);
   exponential_distribution<double> packet_length_distribution(1l/(double)average_packet_length);
   test_exp_dist(generator, distribution, lambda, 1000000);
-  double T = 60;
+  double T = 60 ;
   //generate arrival events
   EventList* arrivals = generate_event_list(lambda, T, Arrival, generator, distribution);
   //generate departure events

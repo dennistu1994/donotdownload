@@ -78,31 +78,31 @@ class DES{
           cout.flush();
           mark += 10;
         }
-        cout<<*(temp->event);
+        //cout<<*(temp->event);
         switch(temp->event->event_type){
           case Arrival:
             this->Na += 1;
-            this->Nsys += 1;
             //schedule departure
             start = max(temp->event->time, next_available);
             L = round(packet_length_distribution(generator));
-            cout << " packet length is "<<L<<" bits";
+            //cout << " packet length is "<<L<<" bits";
             next_available = start + L/(double)link_rate;
             events->put_and_sort(new Event(next_available, Departure));
             break;
           case Departure:
             this->Nd += 1;
-            this->Nsys-=1;
             break;
           case Observer:
             this->No +=1;
+            this->Nsys = Na - Nd;
+            cout<<Nsys<<endl;
             pckts_in_sys_sum += Nsys;
             if(this->Nsys == 0){
               this->idle_count += 1;
             }
             break;
         }
-        cout<<endl;
+        //cout<<endl;
         temp = temp->next;
       }
       return new SimResult(((double)pckts_in_sys_sum)/No);
